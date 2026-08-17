@@ -1,0 +1,59 @@
+[
+  {
+    "id": "guimi_mod:fool_first_potion",
+    "name": "quest.guimi_mod.fool_first_potion.name",
+    "description": "quest.guimi_mod.fool_first_potion.desc",
+    "type": "main",
+    "story": true,
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:fool_9"
+      }
+    ],
+    "rewards": [
+      { "type": "item", "item": "minecraft:book", "amount": 5 },
+      { "type": "spirituality", "amount": 20 }
+    ]
+  },
+  {
+    "id": "guimi_mod:fool_clown",
+    "name": "quest.guimi_mod.fool_clown.name",
+    "description": "quest.guimi_mod.fool_clown.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "fool",
+      "minSequence": 9,
+      "requiredQuest": "guimi_mod:fool_first_potion"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:fool_8"
+      }
+    ],
+    "rewards": [
+      { "type": "acting", "amount": 15 }
+    ]
+  },
+  {
+    "id": "guimi_mod:fool_magician",
+    "name": "quest.guimi_mod.fool_magician.name",
+    "description": "quest.guimi_mod.fool_magician.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "fool",
+      "minSequence": 8,
+      "requiredQuest": "guimi_mod:fool_clown"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:fool_7"
+      }
+    ],
+    "rewards": []
+  }
+]

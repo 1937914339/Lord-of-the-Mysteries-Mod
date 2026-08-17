@@ -1,0 +1,61 @@
+[
+  {
+    "id": "guimi_mod:war_hunter",
+    "name": "quest.guimi_mod.war_hunter.name",
+    "description": "quest.guimi_mod.war_hunter.desc",
+    "type": "main",
+    "story": true,
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:war_9"
+      }
+    ],
+    "rewards": [
+      { "type": "item", "item": "minecraft:flint_and_steel", "amount": 1 },
+      { "type": "spirituality", "amount": 20 }
+    ]
+  },
+  {
+    "id": "guimi_mod:war_provoker",
+    "name": "quest.guimi_mod.war_provoker.name",
+    "description": "quest.guimi_mod.war_provoker.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "war",
+      "minSequence": 9,
+      "requiredQuest": "guimi_mod:war_hunter"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:war_8"
+      }
+    ],
+    "rewards": [
+      { "type": "acting", "amount": 15 }
+    ]
+  },
+  {
+    "id": "guimi_mod:war_pyromaniac",
+    "name": "quest.guimi_mod.war_pyromaniac.name",
+    "description": "quest.guimi_mod.war_pyromaniac.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "war",
+      "minSequence": 8,
+      "requiredQuest": "guimi_mod:war_provoker"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:war_7"
+      }
+    ],
+    "rewards": [
+      { "type": "item", "item": "minecraft:fire_charge", "amount": 8 }
+    ]
+  }
+]

@@ -1,0 +1,59 @@
+[
+  {
+    "id": "guimi_mod:witch_first_potion",
+    "name": "quest.guimi_mod.witch_first_potion.name",
+    "description": "quest.guimi_mod.witch_first_potion.desc",
+    "type": "main",
+    "story": true,
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:witch_9"
+      }
+    ],
+    "rewards": [
+      { "type": "item", "item": "minecraft:ink_sac", "amount": 5 },
+      { "type": "spirituality", "amount": 20 }
+    ]
+  },
+  {
+    "id": "guimi_mod:witch_instigator",
+    "name": "quest.guimi_mod.witch_instigator.name",
+    "description": "quest.guimi_mod.witch_instigator.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "witch",
+      "minSequence": 9,
+      "requiredQuest": "guimi_mod:witch_first_potion"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:witch_8"
+      }
+    ],
+    "rewards": [
+      { "type": "acting", "amount": 15 }
+    ]
+  },
+  {
+    "id": "guimi_mod:witch_which",
+    "name": "quest.guimi_mod.witch_which.name",
+    "description": "quest.guimi_mod.witch_which.desc",
+    "type": "main",
+    "story": true,
+    "conditions": {
+      "pathway": "witch",
+      "minSequence": 8,
+      "requiredQuest": "guimi_mod:witch_instigator"
+    },
+    "objectives": [
+      {
+        "type": "promote",
+        "target": "guimi_mod:witch_7"
+      }
+    ],
+    "rewards": []
+  }
+]
