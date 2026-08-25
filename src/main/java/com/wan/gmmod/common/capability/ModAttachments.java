@@ -10,6 +10,7 @@ import com.wan.gmmod.common.capability.data.DistortionZoneData;
 import com.wan.gmmod.common.capability.data.InterferenceFieldData;
 import com.wan.gmmod.common.capability.data.QuestData;
 import com.wan.gmmod.common.capability.data.SkillBarData;
+import com.wan.gmmod.content.brewing.RecipeKnowledgeData;
 import com.wan.gmmod.content.characteristics.CharacteristicsPool;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.bus.api.IEventBus;
@@ -501,6 +502,22 @@ public class ModAttachments {
                             .serialize(DistortionZoneData.CODEC)
                             .build()
             );
+    // 灵性符咒念咒开始游戏刻（>0 表示正在念咒，期间移动会打断）。仅服务端读写。
+    public static final Supplier<AttachmentType<Long>> TALISMAN_CHANT_START =
+            ATTACHMENT_TYPES.register("talisman_chant_start",
+                    () -> AttachmentType.builder(() -> 0L)
+                            .serialize(Codec.LONG)
+                            .build()
+                    );
+
+    // 已研读的魔药配方集合（配方卷轴阅读后写入）：炼药锅合成前校验。死亡保留。
+    public static final Supplier<AttachmentType<RecipeKnowledgeData>> READ_RECIPES =
+            ATTACHMENT_TYPES.register("read_recipes",
+                    () -> AttachmentType.builder(RecipeKnowledgeData::empty)
+                            .serialize(RecipeKnowledgeData.CODEC)
+                            .copyOnDeath()
+                            .build()
+                    );
 
     // 便利方法：注册到总线
     public static void register(IEventBus bus) {

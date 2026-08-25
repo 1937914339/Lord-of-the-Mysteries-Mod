@@ -9,9 +9,54 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 public class ModCreativeTabs {
+
+    /**
+     * 植物 / 花草 / 树木产物的物品注册名 path 统一清单：
+     * 植物标签页按此全量收录，主标签页的拼音材料自动过滤按此排除，保证分类一致。
+     */
+    private static final Set<String> PLANT_PATHS = Set.of(
+            // 植物方块（含方块物品）
+            "gold_mint", "night_fragrance", "dragon_blood_grass", "poison_hemlock", "lucky_flower_soil",
+            "lucky_flower", "four_leaf_clover", "silver_four_leaf_clover",
+            // 命名花草材料
+            "gold_mint_leaf", "agrimony", "black_edged_sunflower", "black_mandragora",
+            "golden_cloak_grass", "mandragora", "psychedelic_grass", "face_rose",
+            "mist_treant_root", "mist_treant_juice", "dragon_pattern_tree_bark",
+            // 花朵 / 花瓣 / 花汁（material 编号）
+            "material_022", "material_026", "material_027", "material_081", "material_092",
+            "material_111", "material_127", "material_128", "material_129", "material_130",
+            "material_139", "material_142", "material_143", "material_144", "material_148",
+            "material_150", "material_151", "material_175", "material_178", "material_183",
+            "material_192", "material_210", "material_211", "material_247", "material_248",
+            "material_249", "material_261", "material_262", "material_263", "material_269",
+            "material_271", "material_272",
+            // 草 / 叶 / 藤（material 编号）
+            "material_083", "material_084", "material_113", "material_156", "material_157",
+            "material_171", "material_184", "material_226", "material_227", "material_256",
+            // 树木 / 树人产物（material 编号）
+            "material_074", "material_075", "material_189", "material_205", "material_206",
+            "material_207",
+            // 无 material 版的独立拼音物品
+            "zhong_xia_cao",
+            // 配方文档补充的花草
+            "ren_mian_long_cao", "mu_yuan_xue_mei_gui", "ren_dong_hua",
+            "she_hun_feng_ling_hua", "shen_mian_hua", "jin_bian_tai_yang_hua");
+
+    /**
+     * 拼音名重复物品（与 material 编号同物同图，仅 ID 不同）：
+     * 不在植物标签页展示（避免重复），但主标签页同样需要排除。
+     */
+    private static final Set<String> PINYIN_PLANT_DUPS = Set.of(
+            "tai_yang_hua", "yue_liang_hua", "yin_se_si_ye_cao", "xiang_feng_cao",
+            "shui_jue_cao", "shui_jue_zhi_ye", "shui_xian_hua_zhi_ye", "xue_mei_gui_de_ye_zi",
+            "xue_xing_hua_su", "ye_jia_ti_lian_de_zhi_ye", "yin_ying_du_hua",
+            "yin_ying_du_hua_de_hua_ban", "zhang_zhe_zhi_shu_de_gen_jing_jie_jing",
+            "zhang_zhe_zhi_shu_de_guo_shi", "zhang_zhe_zhi_shu_de_shu_pi",
+            "shu_ren_ji_si_de_shu_xin", "shu_ren_ji_si_de_zhi_ye", "yang_xu_cao");
     // 注意：创造标签页注册表是 Registries.CREATIVE_MODE_TAB，不是 ITEM
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, GuimiMod.MODID);
@@ -31,11 +76,6 @@ public class ModCreativeTabs {
                         output.accept(ModItems.BLACK_VEST.get());
                         output.accept(ModItems.LONG_PANTS.get());
                         output.accept(ModItems.BLACK_SHOES.get());
-                        output.accept(ModItems.WRAITH_SPAWN_EGG.get());
-                        output.accept(ModItems.MERMAID_SPAWN_EGG.get());
-                        output.accept(ModItems.NUN_SPAWN_EGG.get());
-                        output.accept(ModItems.PRIEST_SPAWN_EGG.get());
-                        output.accept(ModItems.WOLFMAN_SPAWN_EGG.get());
                         output.accept(ModItems.SEALED_ARTIFACT.get());
                         output.accept(ModItems.MAGIC_ARTIFACT.get());
                         // 仪式 / 武器
@@ -55,27 +95,11 @@ public class ModCreativeTabs {
                         output.accept(ModItems.DECEPTION_BULLET.get());
                         output.accept(ModItems.EXORCISM_BULLET.get());
                         output.accept(ModItems.PURIFICATION_BULLET.get());
-                        // 魔药
-                        output.accept(ModItems.CLOWN_POTION.get());
-                        output.accept(ModItems.MAGICIAN_POTION.get());
-                        output.accept(ModItems.FACELESS_POTION.get());
-                        output.accept(ModItems.MARIONETTIST_POTION.get());
-                        // 炼药材料
+                        // 炼药材料（非植物类）
                         output.accept(ModItems.STAR_CRYSTAL.get());
                         output.accept(ModItems.LAVA_OCTOPUS_BLOOD.get());
-                        output.accept(ModItems.PURIFIED_WATER.get());
-                        output.accept(ModItems.GOLD_MINT_LEAF.get());
-                        output.accept(ModItems.AGRIMONY.get());
-                        output.accept(ModItems.BLACK_EDGED_SUNFLOWER.get());
-                        output.accept(ModItems.BLACK_MANDRAGORA.get());
-                        output.accept(ModItems.GOLDEN_CLOAK_GRASS.get());
-                        output.accept(ModItems.MANDRAGORA.get());
-                        output.accept(ModItems.PSYCHEDELIC_GRASS.get());
-                        output.accept(ModItems.MIST_TREANT_ROOT.get());
-                        output.accept(ModItems.MIST_TREANT_JUICE.get());
                         output.accept(ModItems.THOUSAND_FACED_HUNTER_BLOOD.get());
                         output.accept(ModItems.THOUSAND_FACED_HUNTER_PITUITARY.get());
-                        output.accept(ModItems.FACE_ROSE.get());
                         output.accept(ModItems.HORNACIS_GOAT_HORN_CRYSTAL.get());
                         output.accept(ModItems.DEEP_SEA_NAGA_HAIR.get());
                         output.accept(ModItems.WATER_SHAPE_GEM.get());
@@ -86,119 +110,94 @@ public class ModCreativeTabs {
                         output.accept(ModItems.DRAGON_PATTERN_TREE_BARK.get());
                         output.accept(ModItems.ANCIENT_WRAITH_RESIDUAL_SPIRITUALITY.get());
                         output.accept(ModItems.SIX_WINGED_GARGOYLE_EYE.get());
-                        // 植物方块
-                        output.accept(ModItems.GOLD_MINT.get());
-                        output.accept(ModItems.NIGHT_FRAGRANCE.get());
-                        output.accept(ModItems.DRAGON_BLOOD_GRASS.get());
-                        output.accept(ModItems.POISON_HEMLOCK.get());
+                        // 96个pinyin名材料物品（植物类已移至植物标签页）
+                        ModItems.ITEMS.getEntries().stream()
+                                .filter(entry -> entry.getId().getPath().matches("^[a-z_]+$") && entry.getId().getPath().length() > 10)
+                                .filter(entry -> !entry.getId().getPath().contains("potion"))
+                                .filter(entry -> !entry.getId().getPath().contains("spawn_egg"))
+                                .filter(entry -> !entry.getId().getPath().contains("bullet"))
+                                .filter(entry -> !entry.getId().getPath().contains("talisman"))
+                                .filter(entry -> !entry.getId().getPath().startsWith("material_"))
+                                .filter(entry -> !PLANT_PATHS.contains(entry.getId().getPath()))
+                                .filter(entry -> !PINYIN_PLANT_DUPS.contains(entry.getId().getPath()))
+                                .forEach(entry -> output.accept(entry.get()));
                         // 祭台
                         output.accept(ModItems.ALTAR.get());
                         // 魔女途径
                         output.accept(ModItems.MIRROR.get());
                         output.accept(ModItems.MIRROR_BROKEN.get());
-                        output.accept(ModItems.ASSASSIN_POTION.get());
-                        output.accept(ModItems.INSTIGATOR_POTION.get());
-                        output.accept(ModItems.WITCH_POTION.get());
-                        output.accept(ModItems.JOYFUL_WITCH_POTION.get());
                         // 战争之红途径
                         output.accept(ModItems.HEMOSTATIC_SALVE.get());
                         output.accept(ModItems.BASIC_POISON.get());
                         output.accept(ModItems.FLAME_WEAPON.get());
-                        output.accept(ModItems.HUNTER_POTION.get());
-                        output.accept(ModItems.PROVOKER_POTION.get());
-                        output.accept(ModItems.PYROMANIAC_POTION.get());
-                        output.accept(ModItems.CONSPIRER_POTION.get());
-                        // 倒吊人途径
-                        output.accept(ModItems.MYSTIC_PRAYER_POTION.get());
-                        output.accept(ModItems.LISTENER_POTION.get());
-                        output.accept(ModItems.HERMIT_POTION.get());
-                        output.accept(ModItems.ROSE_BISHOP_POTION.get());
-                        // 空想家途径
-                        output.accept(ModItems.SPECTATOR_POTION.get());
-                        output.accept(ModItems.MIND_READER_POTION.get());
-                        output.accept(ModItems.PSYCHOLOGIST_POTION.get());
-                        output.accept(ModItems.HYPNOTIST_POTION.get());
-                        // 暴君途径
-                        output.accept(ModItems.SAILOR_POTION.get());
-                        output.accept(ModItems.WRATHFUL_POTION.get());
-                        output.accept(ModItems.NAVIGATOR_POTION.get());
-                        output.accept(ModItems.WIND_FAVORED_POTION.get());
-                        // 太阳途径
-                        output.accept(ModItems.PRAISER_POTION.get());
-                        output.accept(ModItems.LIGHT_SEEKER_POTION.get());
-                        output.accept(ModItems.SUN_PRIEST_POTION.get());
-                        output.accept(ModItems.NOTARY_POTION.get());
-                        // 白塔途径
-                        output.accept(ModItems.READER_POTION.get());
-                        output.accept(ModItems.REASONING_STUDENT_POTION.get());
-                        output.accept(ModItems.KNOWLEDGE_GUARDIAN_POTION.get());
-                        output.accept(ModItems.ERUDITE_POTION.get());
-                        // 黄昏巨人途径
-                        output.accept(ModItems.WARRIOR_POTION.get());
-                        output.accept(ModItems.FIGHTER_POTION.get());
-                        output.accept(ModItems.WEAPON_MASTER_POTION.get());
-                        output.accept(ModItems.DAWN_KNIGHT_POTION.get());
-                        // 黑暗途径
-                        output.accept(ModItems.SLEEPLESS_POTION.get());
-                        output.accept(ModItems.MIDNIGHT_POET_POTION.get());
-                        output.accept(ModItems.NIGHTMARE_POTION.get());
-                        output.accept(ModItems.REQUIEM_POTION.get());
-                        // 死神途径
-                        output.accept(ModItems.CORPSE_COLLECTOR_POTION.get());
-                        output.accept(ModItems.GRAVEDIGGER_POTION.get());
-                        output.accept(ModItems.SPIRIT_MEDIUM_POTION.get());
-                        output.accept(ModItems.NECROMANCER_POTION.get());
-                        // 实验途径魔药
-                        output.accept(ModItems.ERROR_9_POTION.get());
-                        output.accept(ModItems.ERROR_8_POTION.get());
-                        output.accept(ModItems.ERROR_7_POTION.get());
-                        output.accept(ModItems.ERROR_6_POTION.get());
-                        output.accept(ModItems.DOOR_9_POTION.get());
-                        output.accept(ModItems.DOOR_8_POTION.get());
-                        output.accept(ModItems.DOOR_7_POTION.get());
-                        output.accept(ModItems.DOOR_6_POTION.get());
+                        // 灵性符咒
                         output.accept(ModItems.BLANK_TALISMAN.get());
-                        output.accept(ModItems.PARAGON_9_POTION.get());
-                        output.accept(ModItems.PARAGON_8_POTION.get());
-                        output.accept(ModItems.PARAGON_7_POTION.get());
-                        output.accept(ModItems.PARAGON_6_POTION.get());
-                        output.accept(ModItems.HERMIT_9_POTION.get());
-                        output.accept(ModItems.HERMIT_8_POTION.get());
-                        output.accept(ModItems.HERMIT_7_POTION.get());
-                        output.accept(ModItems.HERMIT_6_POTION.get());
-                        output.accept(ModItems.MOON_9_POTION.get());
-                        output.accept(ModItems.MOON_8_POTION.get());
-                        output.accept(ModItems.MOON_7_POTION.get());
-                        output.accept(ModItems.MOON_6_POTION.get());
-                        output.accept(ModItems.MOTHER_9_POTION.get());
-                        output.accept(ModItems.MOTHER_8_POTION.get());
-                        output.accept(ModItems.MOTHER_7_POTION.get());
-                        output.accept(ModItems.MOTHER_6_POTION.get());
-                        output.accept(ModItems.ABYSS_9_POTION.get());
-                        output.accept(ModItems.ABYSS_8_POTION.get());
-                        output.accept(ModItems.ABYSS_7_POTION.get());
-                        output.accept(ModItems.ABYSS_6_POTION.get());
-                        output.accept(ModItems.CHAINED_9_POTION.get());
-                        output.accept(ModItems.CHAINED_8_POTION.get());
-                        output.accept(ModItems.CHAINED_7_POTION.get());
-                        output.accept(ModItems.CHAINED_6_POTION.get());
-                        output.accept(ModItems.JUSTICE_9_POTION.get());
-                        output.accept(ModItems.JUSTICE_8_POTION.get());
-                        output.accept(ModItems.JUSTICE_7_POTION.get());
-                        output.accept(ModItems.JUSTICE_6_POTION.get());
-                        output.accept(ModItems.BLACK_EMPEROR_9_POTION.get());
-                        output.accept(ModItems.BLACK_EMPEROR_8_POTION.get());
-                        output.accept(ModItems.BLACK_EMPEROR_7_POTION.get());
-                        output.accept(ModItems.BLACK_EMPEROR_6_POTION.get());
-                        output.accept(ModItems.WHEEL_9_POTION.get());
-                        output.accept(ModItems.WHEEL_8_POTION.get());
-                        output.accept(ModItems.WHEEL_7_POTION.get());
-                        output.accept(ModItems.WHEEL_6_POTION.get());
+                        output.accept(ModItems.PURIFICATION_TALISMAN.get());
+                        output.accept(ModItems.REQUIEM_TALISMAN.get());
+                        output.accept(ModItems.ELECTRIC_TALISMAN.get());
+                        // 货币
+                        output.accept(ModItems.PENNY.get());
+                        output.accept(ModItems.SOYLE.get());
+                        output.accept(ModItems.GOLD_POUND.get());
                         // 黎明骑士装备
                         output.accept(ModItems.DAWN_SWORD.get());
                         output.accept(ModItems.DAWN_ARMOR.get());
                         output.accept(ModItems.MAGMA_SWORD.get());
+                        // 古代神秘物品（有少许神秘力量的古代物品系列）
+                        output.accept(ModItems.BROKEN_ICON_FINGER.get());
+                        output.accept(ModItems.ASYLUM_RECORD.get());
+                        output.accept(ModItems.SCORCHED_ROBE_FRAGMENT.get());
+                        output.accept(ModItems.BLOODSTAINED_SIXPENCE.get());
+                        // 材料物品（自动添加，植物类已移至植物标签页）
+                        ModItems.ITEMS.getEntries().stream()
+                                .filter(entry -> entry.getId().getPath().startsWith("material_"))
+                                .filter(entry -> !PLANT_PATHS.contains(entry.getId().getPath()))
+                                .forEach(entry -> output.accept(entry.get()));
                     })
+                    .build()
+    );
+
+    /** 植物专属标签页：植物方块、花草、花瓣、树木产物等炼药植物材料。 */
+    public static final Supplier<CreativeModeTab> PLANT_TAB = TABS.register("guimi_plants_tab",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.guimi_mod.guimi_plants"))
+                    .icon(() -> new ItemStack(ModItems.NIGHT_FRAGRANCE.get()))
+                    .displayItems((params, output) -> {
+                        // 全部植物由 PLANT_PATHS 统一驱动（方块、花草、花瓣、树木产物、拼音重复物品）
+                        for (String path : PLANT_PATHS) {
+                            acceptByPath(output, path);
+                        }
+                    })
+                    .build()
+    );
+
+    /** 魔药专属标签页：全部序列魔药、配方卷轴与炼药基底。 */
+    public static final Supplier<CreativeModeTab> POTION_TAB = TABS.register("guimi_potions_tab",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.guimi_mod.guimi_potions"))
+                    .icon(() -> new ItemStack(ModItems.SEER_POTION.get()))
+                    .displayItems((params, output) -> {
+                        // 炼药基底与药剂类
+                        output.accept(ModItems.PURIFIED_WATER.get());
+                        // 全部魔药（自动收录注册名含 potion 的物品）
+                        ModItems.ITEMS.getEntries().stream()
+                                .filter(entry -> entry.getId().getPath().contains("potion"))
+                                .forEach(entry -> output.accept(entry.get()));
+                        // 全部魔药配方卷轴
+                        ModItems.RECIPE_SCROLLS.values().forEach(scroll -> output.accept(scroll.get()));
+                    })
+                    .build()
+    );
+
+    /** 生物蛋专属标签页：全部刷怪蛋。 */
+    public static final Supplier<CreativeModeTab> SPAWN_EGG_TAB = TABS.register("guimi_spawn_eggs_tab",
+            () -> CreativeModeTab.builder()
+                    .title(Component.translatable("itemGroup.guimi_mod.guimi_spawn_eggs"))
+                    .icon(() -> new ItemStack(ModItems.WRAITH_SPAWN_EGG.get()))
+                    .displayItems((params, output) ->
+                            ModItems.ITEMS.getEntries().stream()
+                                    .filter(entry -> entry.getId().getPath().contains("spawn_egg"))
+                                    .forEach(entry -> output.accept(entry.get())))
                     .build()
     );
 
@@ -220,4 +219,14 @@ public class ModCreativeTabs {
                     })
                     .build()
     );
+
+    /** 按注册名 path 从物品注册表中取出并加入标签页。 */
+    private static void acceptByPath(CreativeModeTab.Output output, String... paths) {
+        for (String path : paths) {
+            ModItems.ITEMS.getEntries().stream()
+                    .filter(entry -> entry.getId().getPath().equals(path))
+                    .findFirst()
+                    .ifPresent(entry -> output.accept(entry.get()));
+        }
+    }
 }

@@ -1,7 +1,9 @@
 package com.wan.gmmod.common.block;
 
 import com.wan.gmmod.common.block.entity.AltarBlockEntity;
+import com.wan.gmmod.common.capability.ModAttachments;
 import com.wan.gmmod.common.registry.ModBlockEntities;
+import com.wan.gmmod.content.altar.AltarRecipe;
 import com.wan.gmmod.content.meditation.MeditationManager;
 import com.wan.gmmod.content.spiritwall.SpiritWallManager;
 import com.mojang.serialization.MapCodec;
@@ -99,6 +101,21 @@ public class AltarBlock extends BaseEntityBlock {
             // 材料已可匹配配方时，先校验仪式条件（灵性之墙内 + 蜡烛x3）
             if (altar.hasMatchingRecipe() && !checkRitualConditions(level, pos, player)) {
                 return ItemInteractionResult.SUCCESS;
+            }
+
+            // 灵性消耗校验：配方要求灵性时，先扣除施法玩家的灵性再合成
+            AltarRecipe recipe = altar.matchingRecipe();
+            if (recipe != null && recipe.spiritCost() > 0) {
+                if (!(player instanceof ServerPlayer sp)) {
+                    return ItemInteractionResult.SUCCESS;
+                }
+                int spirit = sp.getData(ModAttachments.SPIRITUALITY);
+                if (spirit < recipe.spiritCost()) {
+                    player.displayClientMessage(
+                            Component.translatable("message.guimi_mod.altar_need_spirit", recipe.spiritCost()), true);
+                    return ItemInteractionResult.SUCCESS;
+                }
+                sp.setData(ModAttachments.SPIRITUALITY, spirit - recipe.spiritCost());
             }
 
             // 尝试合成

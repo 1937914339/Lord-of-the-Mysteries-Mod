@@ -12,6 +12,29 @@ import com.wan.gmmod.content.entities.ShadowCreatureEntity;
 import com.wan.gmmod.content.entities.SpiritEntity;
 import com.wan.gmmod.content.entities.WraithEntity;
 import com.wan.gmmod.content.entities.WolfmanEntity;
+import com.wan.gmmod.content.entities.HumanSkinShadowEntity;
+import com.wan.gmmod.content.entities.EvilPantherEntity;
+import com.wan.gmmod.content.entities.ThousandFacedHunterEntity;
+import com.wan.gmmod.content.entities.WhiteFoxEntity;
+import com.wan.gmmod.content.entities.WidowSpiderEntity;
+import com.wan.gmmod.content.entities.HornachisGoatEntity;
+import com.wan.gmmod.content.entities.LavaDemonEntity;
+import com.wan.gmmod.content.entities.MrKEntity;
+import com.wan.gmmod.content.entities.BrownSilkSolenEntity;
+import com.wan.gmmod.content.entities.AbyssDemonEntity;
+import com.wan.gmmod.content.entities.EvilBlackCatEntity;
+import com.wan.gmmod.content.entities.DeathRavenEntity;
+import com.wan.gmmod.content.entities.RainBirdEntity;
+import com.wan.gmmod.content.entities.NightmareShadowEntity;
+import com.wan.gmmod.content.entities.VengefulShadowEntity;
+import com.wan.gmmod.content.entities.LivingCorpseEntity;
+import com.wan.gmmod.content.entities.FireSalamanderEntity;
+import com.wan.gmmod.content.entities.GrayBirdGrandmaEntity;
+import com.wan.gmmod.content.entities.OneEyedBullEntity;
+import com.wan.gmmod.content.entities.RottenShepherdEntity;
+import com.wan.gmmod.content.entities.BlackSpottedFrogEntity;
+import com.wan.gmmod.content.entities.FrogMeatPuppetEntity;
+import com.wan.gmmod.content.entities.BlackScaleSharkEntity;
 import com.wan.gmmod.content.sequences.Sequence;
 import com.wan.gmmod.content.sequences.SequenceRegistry;
 import com.wan.gmmod.content.sequences.Sequences;
@@ -25,8 +48,12 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -160,6 +187,36 @@ private static final String[] CHURCH_BIOMES = { "plains", "desert", "savanna", "
         event.put(ModEntities.PAPER_FIGURINE.get(), PaperFigurineEntity.createAttributes().build());
         event.put(ModEntities.SHADOW_CREATURE.get(), ShadowCreatureEntity.createAttributes().build());
         event.put(ModEntities.WOLFMAN.get(), WolfmanEntity.createAttributes().build());
+        event.put(ModEntities.HUMAN_SKIN_SHADOW.get(), HumanSkinShadowEntity.createAttributes().build());
+        event.put(ModEntities.EVIL_PANTHER.get(), EvilPantherEntity.createAttributes().build());
+        event.put(ModEntities.THOUSAND_FACED_HUNTER.get(), ThousandFacedHunterEntity.createAttributes().build());
+        event.put(ModEntities.WHITE_FOX.get(), WhiteFoxEntity.createAttributes().build());
+        event.put(ModEntities.WIDOW_SPIDER.get(), WidowSpiderEntity.createAttributes().build());
+        event.put(ModEntities.HORNACHIS_GOAT.get(), HornachisGoatEntity.createAttributes().build());
+        event.put(ModEntities.LAVA_DEMON.get(), LavaDemonEntity.createAttributes().build());
+        event.put(ModEntities.MR_K.get(), MrKEntity.createAttributes().build());
+        event.put(ModEntities.BROWN_SILK_SOLEN.get(), BrownSilkSolenEntity.createAttributes().build());
+        event.put(ModEntities.ABYSS_DEMON.get(), AbyssDemonEntity.createAttributes().build());
+        event.put(ModEntities.EVIL_BLACK_CAT.get(), EvilBlackCatEntity.createAttributes().build());
+        event.put(ModEntities.DEATH_RAVEN.get(), DeathRavenEntity.createAttributes().build());
+        event.put(ModEntities.RAIN_BIRD.get(), RainBirdEntity.createAttributes().build());
+        event.put(ModEntities.NIGHTMARE_SHADOW.get(), NightmareShadowEntity.createAttributes().build());
+        event.put(ModEntities.VENGEFUL_SHADOW.get(), VengefulShadowEntity.createAttributes().build());
+        event.put(ModEntities.LIVING_CORPSE.get(), LivingCorpseEntity.createAttributes().build());
+        event.put(ModEntities.FIRE_SALAMANDER.get(), FireSalamanderEntity.createAttributes().build());
+        event.put(ModEntities.GRAY_BIRD_GRANDMA.get(), GrayBirdGrandmaEntity.createAttributes().build());
+        event.put(ModEntities.ONE_EYED_BULL.get(), OneEyedBullEntity.createAttributes().build());
+        event.put(ModEntities.ROTTEN_SHEPHERD.get(), RottenShepherdEntity.createAttributes().build());
+        event.put(ModEntities.BLACK_SPOTTED_FROG.get(), BlackSpottedFrogEntity.createAttributes().build());
+        event.put(ModEntities.FROG_MEAT_PUPPET.get(), FrogMeatPuppetEntity.createAttributes().build());
+        event.put(ModEntities.BLACK_SCALE_SHARK.get(), BlackScaleSharkEntity.createAttributes().build());
+        // 配方材料来源生物（新增）
+        event.put(ModEntities.SILVER_WAR_BEAR.get(), com.wan.gmmod.content.entities.SilverWarBearEntity.createAttributes().build());
+        event.put(ModEntities.SKINLESS_BLOOD_CAT.get(), com.wan.gmmod.content.entities.SkinlessBloodCatEntity.createAttributes().build());
+        event.put(ModEntities.ADULT_UNICORN.get(), com.wan.gmmod.content.entities.AdultUnicornEntity.createAttributes().build());
+        event.put(ModEntities.ADULT_PEGASUS.get(), com.wan.gmmod.content.entities.AdultPegasusEntity.createAttributes().build());
+        event.put(ModEntities.DAWN_ROOSTER.get(), com.wan.gmmod.content.entities.DawnRoosterEntity.createAttributes().build());
+        event.put(ModEntities.NIGHTMARE_EYE.get(), com.wan.gmmod.content.entities.NightmareEyeEntity.createAttributes().build());
     }
 
     /** 修女 / 神父生成规则：地表（与普通陆地生物相同） */
@@ -186,6 +243,71 @@ private static final String[] CHURCH_BIOMES = { "plains", "desert", "savanna", "
                 net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
                 net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        // 新增生物生成规则
+        event.register(ModEntities.HUMAN_SKIN_SHADOW.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.EVIL_PANTHER.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.THOUSAND_FACED_HUNTER.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.WHITE_FOX.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.Mob::checkMobSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.WIDOW_SPIDER.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.HORNACHIS_GOAT.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.Mob::checkMobSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.LAVA_DEMON.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.MR_K.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.Mob::checkMobSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.BROWN_SILK_SOLEN.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.ABYSS_DEMON.get(),
+                net.minecraft.world.entity.SpawnPlacementTypes.ON_GROUND,
+                net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                net.minecraft.world.entity.monster.Monster::checkMonsterSpawnRules,
+                net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.EVIL_BLACK_CAT.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.DEATH_RAVEN.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.RAIN_BIRD.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.NIGHTMARE_SHADOW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.VENGEFUL_SHADOW.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.LIVING_CORPSE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.FIRE_SALAMANDER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.GRAY_BIRD_GRANDMA.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.ONE_EYED_BULL.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.ROTTEN_SHEPHERD.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.BLACK_SPOTTED_FROG.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Mob::checkMobSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.FROG_MEAT_PUPPET.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntities.BLACK_SCALE_SHARK.get(), SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {

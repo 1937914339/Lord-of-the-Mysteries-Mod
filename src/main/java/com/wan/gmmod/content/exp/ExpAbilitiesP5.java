@@ -2,6 +2,8 @@ package com.wan.gmmod.content.exp;
 
 import com.wan.gmmod.GuimiMod;
 import com.wan.gmmod.common.capability.ModAttachments;
+import com.wan.gmmod.common.network.packet.StealMenuPacket;
+import com.wan.gmmod.common.registry.ModEffects;
 import com.wan.gmmod.content.abilities.Ability;
 import com.wan.gmmod.content.abilities.AbilityRegistry;
 import com.wan.gmmod.content.abilities.SkillManager;
@@ -14,10 +16,14 @@ import com.wan.gmmod.content.exp.ExpAbilityTypes.Target;
 import com.wan.gmmod.content.exp.ExpAbilityTypes.Teleport;
 import com.wan.gmmod.content.exp.ExpAbilityTypes.TickPassive;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,12 +32,15 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import static com.wan.gmmod.content.exp.ExpFx.fx;
 
@@ -144,10 +153,19 @@ final class ExpAbilitiesP5 {
                 ExpFx.apply(sp, List.of(fx(MobEffects.MOVEMENT_SPEED, 0)), 100, true);
             }
         }));
-        // 蝙蝠化形：短暂近乎无敌并可滑翔（15 秒，CD 60 秒）
-        reg("moon_7", new SelfBuff("moon_bat_form", 15, 60, 15,
-                fx(MobEffects.DAMAGE_RESISTANCE, 4), fx(MobEffects.INVISIBILITY, 0),
-                fx(MobEffects.SLOW_FALLING, 0), fx(MobEffects.JUMP, 3)));
+        // 蝙蝠化形：化身蝙蝠（抗性 V + 滑翔 + 跳跃 + 短暂隐身为蝙蝠群），并召唤蝙蝠群扑咬周围敌人
+        reg("moon_7", new Custom("moon_bat_form", 15, 60, sp -> {
+            ExpFx.apply(sp, List.of(
+                    fx(MobEffects.DAMAGE_RESISTANCE, 4),
+                    fx(MobEffects.SLOW_FALLING, 0),
+                    fx(MobEffects.JUMP, 3),
+                    fx(MobEffects.INVISIBILITY, 0),
+                    fx(ModEffects.BAT_FORM, 0)), 300, false);
+            ExpAbilityTypes.Summon.spawn(sp, net.minecraft.world.entity.EntityType.BAT, 6,
+                    1200, 6, 2, 0F);
+            ExpFx.burst(sp.serverLevel(), sp, ParticleTypes.LARGE_SMOKE, 30);
+            ExpFx.activated(sp, "ability.guimi_mod.moon_bat_form");
+        }));
         // 血之诱惑：魅惑 8 米内生物使其靠近（敌对目标额外受到精神压制）
         reg("moon_7", new Custom("moon_blood_lure", 10, 30, sp -> {
             int lured = 0;
@@ -467,7 +485,8 @@ final class ExpAbilitiesP5 {
         reg("error_7", new Marker("err_trace_reading"));
 
         // ===== 错误 · 序列6 盗火人 =====
-        // 能力窃取：从目标玩家的已解锁能力池窃取一项（目标暂时失去、自己临时借用 10 分钟）
+        // 盗火人·隔空盗窃：视线锁定 50 米内目标——潜行时把危险物品塞进对方主手并顺走其原持物，
+        // 否则隔空偷取对方身上的物品：一件直接偷，多件弹出选择菜单。
         reg("error_6", new Custom("err_ability_steal", 30, 180, sp -> {
             List<LivingEntity> hits = ExpFx.rayTargets(sp, 50, 1);
             if (hits.isEmpty()) {
@@ -476,46 +495,45 @@ final class ExpAbilitiesP5 {
                 return;
             }
             LivingEntity target = hits.get(0);
-            // 优先窃取玩家
-            if (target instanceof ServerPlayer targetPlayer) {
-                List<Ability> pool = SkillManager.getUnlockedAbilities(targetPlayer);
-                List<Ability> stealable = pool.stream()
-                        .filter(a -> !SkillManager.isUnlocked(sp, a.getId()))
-                        .toList();
-                if (stealable.isEmpty()) {
-                    sp.displayClientMessage(
-                            Component.translatable("message.guimi_mod.exp.steal_fail"), true);
-                    ExpFx.burst(sp.serverLevel(), target, ParticleTypes.SMOKE, 8);
-                    ExpFx.refund(sp, 30);
-                    return;
+            ServerLevel level = sp.serverLevel();
+            if (sp.isShiftKeyDown()) {
+                ItemStack dangerous = ExpFx.findDangerous(sp);
+                if (dangerous.isEmpty()) {
+                    dangerous = new ItemStack(Items.LAVA_BUCKET);
                 }
-                // 目标序列等级更高（数字更小）时窃取更难成功：成功率降至 20%
-                int myLevel = sp.getData(ModAttachments.SEQUENCE_LEVEL);
-                int theirLevel = targetPlayer.getData(ModAttachments.SEQUENCE_LEVEL);
-                float chance = (theirLevel > 0 && theirLevel < myLevel) ? 0.2F : 1.0F;
-                if (sp.getRandom().nextFloat() >= chance) {
-                    sp.displayClientMessage(
-                            Component.translatable("message.guimi_mod.exp.steal_fail"), true);
-                    ExpFx.burst(sp.serverLevel(), target, ParticleTypes.SMOKE, 8);
-                    ExpFx.refund(sp, 30);
-                    return;
+                ItemStack held = target.getItemInHand(InteractionHand.MAIN_HAND);
+                if (!held.isEmpty()) {
+                    sp.getInventory().placeItemBackInInventory(held);
                 }
-                Ability stolen = stealable.get(sp.getRandom().nextInt(stealable.size()));
-                long until = sp.serverLevel().getGameTime() + 12000; // 10 分钟
-                SkillManager.grantStolenAbility(sp, stolen.getId(), until);
-                SkillManager.blockStolenAbility(targetPlayer, stolen.getId(), until);
-                sp.sendSystemMessage(Component.translatable("message.guimi_mod.exp.steal_success",
-                        Component.translatable(stolen.getNameKey())));
-                ExpFx.burst(sp.serverLevel(), target, ParticleTypes.SOUL, 25);
-            } else {
-                // 非玩家目标：压制（虚弱 + 厄运），自身获得随机增益
-                ExpFx.apply(target,
-                        List.of(fx(MobEffects.WEAKNESS, 1), fx(MobEffects.UNLUCK, 0)), 12000, false);
-                var pool = List.of(fx(MobEffects.DAMAGE_BOOST, 0), fx(MobEffects.MOVEMENT_SPEED, 0),
-                        fx(MobEffects.DAMAGE_RESISTANCE, 0), fx(MobEffects.NIGHT_VISION, 0));
-                ExpFx.apply(sp, List.of(pool.get(sp.getRandom().nextInt(pool.size()))), 1200, false);
-                ExpFx.burst(sp.serverLevel(), target, ParticleTypes.SOUL, 25);
+                target.setItemInHand(InteractionHand.MAIN_HAND, dangerous);
+                sp.displayClientMessage(
+                        Component.translatable("message.guimi_mod.exp.steal_plant"), true);
+                ExpFx.burst(level, target, ParticleTypes.SOUL, 14);
+                ExpFx.activated(sp, "ability.guimi_mod.err_ability_steal");
+                return;
             }
+            List<ItemStack> slots = ExpFx.itemSlots(target);
+            if (slots.isEmpty()) {
+                ExpFx.noTarget(sp);
+                ExpFx.refund(sp, 30);
+                return;
+            }
+            if (slots.size() == 1) {
+                ItemStack loot = ExpFx.stealFromIndex(target, 0);
+                sp.getInventory().placeItemBackInInventory(loot);
+                sp.displayClientMessage(
+                        Component.translatable("message.guimi_mod.exp.steal_item",
+                                loot.getHoverName()), true);
+                ExpFx.burst(level, target, ParticleTypes.SOUL, 10);
+                ExpFx.activated(sp, "ability.guimi_mod.err_ability_steal");
+                return;
+            }
+            java.util.List<String> labels = new java.util.ArrayList<>();
+            for (ItemStack s : slots) {
+                String name = s.getHoverName().getString();
+                labels.add(s.getCount() > 1 ? name + " x" + s.getCount() : name);
+            }
+            PacketDistributor.sendToPlayer(sp, new StealMenuPacket(target.getId(), labels));
             ExpFx.activated(sp, "ability.guimi_mod.err_ability_steal");
         }));
         // 隔空取物：将 50 米内掉落物吸到身边
@@ -619,9 +637,24 @@ final class ExpAbilitiesP5 {
         // 电击：接触目标麻痹 2 秒 + 伤害 3
         reg("door_8", new Target("door_shock", 5, 8, 3, 3, 1, 2,
                 fx(MobEffects.MOVEMENT_SLOWDOWN, 5)));
-        // 造雾：15 米范围浓雾 20 秒
-        reg("door_8", new Aoe("door_fog", 8, 25, 15, ExpFx.Filter.ALL,
-                false, 0, 0, false, 20, fx(MobEffects.DARKNESS, 0)));
+        // 造雾：15 米范围大片灰色浓雾（烟雾粒子弥漫），范围内生物陷入黑暗 20 秒
+        reg("door_8", new Custom("door_fog", 8, 25, sp -> {
+            ServerLevel level = sp.serverLevel();
+            for (LivingEntity e : ExpFx.around(sp, 15, ExpFx.Filter.ALL)) {
+                ExpFx.apply(e, List.of(fx(MobEffects.DARKNESS, 0)), 400, false);
+            }
+            for (int i = 0; i < 36; i++) {
+                double px = sp.getX() + (level.random.nextDouble() - 0.5) * 30;
+                double py = sp.getY() + level.random.nextDouble() * 8;
+                double pz = sp.getZ() + (level.random.nextDouble() - 0.5) * 30;
+                ParticleOptions particle = i % 3 == 0 ? ParticleTypes.LARGE_SMOKE
+                        : i % 3 == 1 ? ParticleTypes.SMOKE : ParticleTypes.ASH;
+                level.sendParticles(particle, px, py, pz, 8, 0.5, 0.5, 0.5, 0.03);
+            }
+            level.playSound(null, sp.blockPosition(), SoundEvents.FIRE_EXTINGUISH,
+                    SoundSource.PLAYERS, 0.9F, 0.6F);
+            ExpFx.activated(sp, "ability.guimi_mod.door_fog");
+        }));
         // 刮风：制造大风击退周围目标
         reg("door_8", new Aoe("door_wind", 6, 10, 8, ExpFx.Filter.ALL,
                 false, 0, 0, true, 0));

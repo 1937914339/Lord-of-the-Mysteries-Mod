@@ -31,6 +31,14 @@ public record ToggleCardModePacket() implements CustomPacketPayload {
     public static void handle(ToggleCardModePacket msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
             Player player = ctx.player();
+            // 服务端校验：仅愚者途径且序列 ≤ 8（小丑）可切换飞牌散射
+            if (!"fool".equals(player.getData(ModAttachments.PATHWAY))
+                    || player.getData(ModAttachments.SEQUENCE_LEVEL) > 8
+                    || player.getData(ModAttachments.SEQUENCE_LEVEL) <= 0) {
+                player.displayClientMessage(Component.translatable(
+                        "message.guimi_mod.fool_locked_card"), true);
+                return;
+            }
             boolean scatter = !player.getData(ModAttachments.CARD_SCATTER_MODE);
             player.setData(ModAttachments.CARD_SCATTER_MODE, scatter);
             player.displayClientMessage(Component.translatable(

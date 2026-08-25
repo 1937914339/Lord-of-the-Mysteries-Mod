@@ -3,6 +3,7 @@ package com.wan.gmmod.common.event;
 import com.wan.gmmod.Config;
 import com.wan.gmmod.GuimiMod;
 import com.wan.gmmod.common.item.CharacteristicItem;
+import com.wan.gmmod.common.registry.ModItems;
 import com.wan.gmmod.content.characteristics.CharacteristicManager;
 import com.wan.gmmod.content.characteristics.CharacteristicsPool;
 import com.wan.gmmod.content.sequences.Sequences;
@@ -94,7 +95,7 @@ public class BeyondersGatheringSubscriber {
         CharacteristicManager.save(level, pool);
         ItemStack result = CharacteristicItem.create(pathway, lvl);
         offers.add(new MerchantOffer(
-                new ItemCost(Items.EMERALD, Math.min(64, price)),
+                new ItemCost(ModItems.SOYLE.get(), Math.min(64, price)),
                 result, 1, 5, 0.15f));
     }
 }

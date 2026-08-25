@@ -7,60 +7,40 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
-import java.util.EnumMap;
-import java.util.Map;
-
 /**
- * 左上角统一状态 HUD。
+ * 左上角状态 HUD。
  * <p>
- * 由一张大底图 + 可切换的途径徽章 + 动态绘制的文字组成：
+ * 无面板的紧凑排版，配「神秘符文」花纹装饰（像素级绘制，不依赖贴图）：
  * <ul>
- *     <li>底图：{@code assets/guimi_mod/textures/gui/hud/hud_base.png}
- *     （尺寸 {@value #BASE_WIDTH}x{@value #BASE_HEIGHT}，左侧预留徽章位，右侧预留四行文字位，由用户提供）；</li>
- *     <li>徽章：{@code assets/guimi_mod/textures/gui/hud/badge_{途径key}.png}
- *     （尺寸 {@value #BADGE_SIZE}x{@value #BADGE_SIZE}，如 badge_fool.png，由用户提供）。
- *     未成为非凡者时徽章位留空（不绘制任何徽章）；</li>
- *     <li>文字（代码动态绘制，从上到下）：序列名称与途径、灵性、污染、扮演进度。</li>
+ *     <li>左侧贯穿金线（封印标尺）+ 两端轴头；</li>
+ *     <li>标题前八角星符；</li>
+ *     <li>标题下横幅花纹线，中央镶嵌菱形；</li>
+ *     <li>底部一排对称符文菱形链；</li>
+ *     <li>三条细进度栏，两端配金点。</li>
  * </ul>
+ * 全部装饰为 1~3 像素细线与小符文，不遮挡视野。
  */
 @EventBusSubscriber(modid = GuimiMod.MODID, value = Dist.CLIENT)
 public class ActingHudOverlay {
 
-    /** HUD 底图（一张大图片，包含边框、徽章底座与文字底纹） */
-    private static final ResourceLocation HUD_BASE = GuimiMod.id("textures/gui/hud/hud_base.png");
-
-    /** 底图绘制尺寸（同时也是 PNG 的像素尺寸） */
-    private static final int BASE_WIDTH = 160;
-    private static final int BASE_HEIGHT = 68;
-    /** HUD 在屏幕左上角的位置 */
     private static final int HUD_X = 4;
     private static final int HUD_Y = 4;
 
-    /** 徽章绘制尺寸（同时也是 PNG 的像素尺寸）与其在底图内的偏移 */
-    private static final int BADGE_SIZE = 48;
-    private static final int BADGE_OFFSET_X = 8;
-    private static final int BADGE_OFFSET_Y = 10;
+    /** 进度栏：标签列宽 + 条宽 */
+    private static final int LABEL_W = 30;
+    private static final int BAR_W = 86;
 
-    /** 文字区在底图内的偏移与行距 */
-    private static final int TEXT_OFFSET_X = 62;
-    private static final int TEXT_OFFSET_Y = 9;
-    private static final int LINE_HEIGHT = 13;
-
-    /** 途径 -> 徽章贴图（badge_{key}.png），启动时一次性构建 */
-    private static final Map<Sequences.Pathway, ResourceLocation> BADGES = new EnumMap<>(Sequences.Pathway.class);
-
-    static {
-        for (Sequences.Pathway pathway : Sequences.Pathway.values()) {
-            BADGES.put(pathway, GuimiMod.id("textures/gui/hud/badge_" + pathway.getKey() + ".png"));
-        }
-    }
+    /** 配色（金 / 暗红 / 墨蓝，诡秘之主风格） */
+    private static final int GOLD = 0xFFC9A45C;
+    private static final int TITLE_COLOR = 0xFFE8C96A;
+    private static final int MORTAL_COLOR = 0xFF9A958C;
+    private static final int LABEL_COLOR = 0xFFD8CFC0;
 
     @SubscribeEvent
     public static void registerLayer(RegisterGuiLayersEvent event) {
@@ -74,36 +54,87 @@ public class ActingHudOverlay {
 
         int seq = player.getData(ModAttachments.SEQUENCE_LEVEL);
         Sequences.Pathway pathway = Sequences.fromKey(player.getData(ModAttachments.PATHWAY));
-
-        // 1. 底图：一张大图片整体绘制
-        graphics.blit(HUD_BASE, HUD_X, HUD_Y, 0, 0, BASE_WIDTH, BASE_HEIGHT, BASE_WIDTH, BASE_HEIGHT);
-
-        // 2. 徽章：按当前途径切换贴图；未成为非凡者（无途径）时留空
         boolean beyonder = seq > 0 && pathway != null;
-        if (beyonder) {
-            graphics.blit(BADGES.get(pathway), HUD_X + BADGE_OFFSET_X, HUD_Y + BADGE_OFFSET_Y,
-                    0, 0, BADGE_SIZE, BADGE_SIZE, BADGE_SIZE, BADGE_SIZE);
-        }
-
-        // 3. 动态文字：从上到下依次为 序列名称途径 / 灵性 / 污染 / 扮演进度
-        int spirituality = player.getData(ModAttachments.SPIRITUALITY);
-        int pollution = player.getData(ModAttachments.POLLUTION);
-        int acting = player.getData(ModAttachments.ACTING_PROGRESS);
 
         String title = beyonder
                 ? "序列" + seq + " " + pathway.getSequenceName(seq) + " · " + pathway.getDisplayName()
                 : "凡人";
 
-        int textX = HUD_X + TEXT_OFFSET_X;
-        int textY = HUD_Y + TEXT_OFFSET_Y;
-        // 灵性显示为 当前/上限，上限随序列成长（序列0显示为∞）
+        int spirituality = player.getData(ModAttachments.SPIRITUALITY);
+        int pollution = player.getData(ModAttachments.POLLUTION);
+        int acting = player.getData(ModAttachments.ACTING_PROGRESS);
         int maxSpirituality = com.wan.gmmod.content.spirituality.SpiritualityManager.getMax(player);
-        String spiritText = "灵性: " + spirituality + "/"
-                + (com.wan.gmmod.content.spirituality.SpiritualityManager.isInfinite(maxSpirituality)
-                        ? "∞" : maxSpirituality);
-        graphics.drawString(mc.font, Component.literal(title), textX, textY, 0xFFD700);
-        graphics.drawString(mc.font, Component.literal(spiritText), textX, textY + LINE_HEIGHT, 0x00BFFF);
-        graphics.drawString(mc.font, Component.literal("污染: " + pollution), textX, textY + LINE_HEIGHT * 2, 0xFF6347);
-        graphics.drawString(mc.font, Component.literal("扮演: " + acting + "%"), textX, textY + LINE_HEIGHT * 3, 0xDA70D6);
+        boolean infiniteSpirit = com.wan.gmmod.content.spirituality.SpiritualityManager.isInfinite(maxSpirituality);
+        int maxPollution = ModAttachments.MAX_POLLUTION;
+
+        int x = HUD_X, y = HUD_Y;
+        int cx = x + 6;
+        int hw = LABEL_W + BAR_W;
+
+        // 左侧贯穿金线（封印标尺）+ 两端轴头
+        graphics.fill(x, y + 2, x + 1, y + 52, 0x88C9A45C);
+        graphics.fill(x - 1, y + 1, x + 2, y + 4, GOLD);
+        graphics.fill(x - 1, y + 50, x + 2, y + 53, GOLD);
+
+        // 标题行：八角星符 + 标题
+        star8(graphics, x + 5, y);
+        graphics.drawString(mc.font, Component.literal(title), x + 13, y + 1, beyonder ? TITLE_COLOR : MORTAL_COLOR);
+
+        // 标题下横幅花纹线：两端金点 + 中央菱形
+        graphics.fill(cx, y + 10, cx + hw, y + 11, 0x55C9A45C);
+        graphics.fill(cx, y + 9, cx + 1, y + 12, GOLD);
+        graphics.fill(cx + hw - 1, y + 9, cx + hw, y + 12, GOLD);
+        gem(graphics, cx + hw / 2, y + 10, 0x88E8C96A);
+
+        bar(graphics, mc, cx, y + 14, "灵性",
+                spirituality + "/" + (infiniteSpirit ? "∞" : maxSpirituality),
+                spirituality, maxSpirituality, infiniteSpirit, 0xFFC9A45C);
+        bar(graphics, mc, cx, y + 27, "污染",
+                String.valueOf(pollution), pollution, maxPollution, false, 0xFFB03030);
+        bar(graphics, mc, cx, y + 40, "扮演",
+                acting + "%", acting, 100, false, 0xFF5AC8E8);
+
+        // 底部符文菱形链（中央对称）
+        int center = cx + hw / 2;
+        for (int i = -2; i <= 2; i++) {
+            gem(graphics, center + i * 16, y + 51, 0xAAE8C96A);
+        }
+    }
+
+    /** 单行进度栏：标签 + 细进度条 + 数值（同行），进度条两端配金点。 */
+    private static void bar(GuiGraphics graphics, Minecraft mc, int x, int y, String label,
+                            String value, int cur, int max, boolean full, int fillColor) {
+        graphics.drawString(mc.font, Component.literal(label), x, y, LABEL_COLOR);
+        int bx = x + LABEL_W;
+        int by = y + 4;
+        graphics.drawString(mc.font, Component.literal(value), bx + BAR_W - mc.font.width(value), y, fillColor);
+        graphics.fill(bx, by, bx + BAR_W, by + 2, 0x55000000);
+        int fill = full || max <= 0 ? BAR_W : Math.max(0, Math.min(BAR_W, (int) Math.round((double) cur / max * BAR_W)));
+        if (fill > 0) graphics.fill(bx, by, bx + fill, by + 2, fillColor);
+        graphics.fill(bx, by, bx + 1, by + 2, 0x55FFFFFF);
+        graphics.fill(bx + BAR_W - 1, by, bx + BAR_W, by + 2, 0x55FFFFFF);
+        // 进度条两端金点
+        graphics.fill(bx - 2, by, bx, by + 2, GOLD);
+        graphics.fill(bx + BAR_W, by, bx + BAR_W + 2, by + 2, GOLD);
+    }
+
+    /** 3×3 小菱形符文。 */
+    private static void gem(GuiGraphics g, int cx, int cy, int color) {
+        g.fill(cx, cy - 1, cx + 1, cy, color);
+        g.fill(cx - 1, cy, cx + 2, cy + 1, color);
+        g.fill(cx, cy + 1, cx + 1, cy + 2, color);
+    }
+
+    /** 5×5 八角星符。 */
+    private static void star8(GuiGraphics g, int x, int y) {
+        g.fill(x + 2, y, x + 3, y + 1, GOLD);
+        g.fill(x, y + 2, x + 1, y + 3, GOLD);
+        g.fill(x + 4, y + 2, x + 5, y + 3, GOLD);
+        g.fill(x + 2, y + 4, x + 3, y + 5, GOLD);
+        g.fill(x + 2, y + 2, x + 3, y + 3, GOLD);
+        g.fill(x, y, x + 1, y + 1, 0xAAE8C96A);
+        g.fill(x + 4, y, x + 5, y + 1, 0xAAE8C96A);
+        g.fill(x, y + 4, x + 1, y + 5, 0xAAE8C96A);
+        g.fill(x + 4, y + 4, x + 5, y + 5, 0xAAE8C96A);
     }
 }

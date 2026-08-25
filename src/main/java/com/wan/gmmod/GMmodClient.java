@@ -11,6 +11,29 @@ import com.wan.gmmod.client.render.MermaidRenderer;
 import com.wan.gmmod.client.render.NunRenderer;
 import com.wan.gmmod.client.render.PriestRenderer;
 import com.wan.gmmod.client.render.PaperFigurineRenderer;
+import com.wan.gmmod.client.render.HumanSkinShadowRenderer;
+import com.wan.gmmod.client.render.EvilPantherRenderer;
+import com.wan.gmmod.client.render.ThousandFacedHunterRenderer;
+import com.wan.gmmod.client.render.WhiteFoxRenderer;
+import com.wan.gmmod.client.render.WidowSpiderRenderer;
+import com.wan.gmmod.client.render.HornachisGoatRenderer;
+import com.wan.gmmod.client.render.LavaDemonRenderer;
+import com.wan.gmmod.client.render.MrKRenderer;
+import com.wan.gmmod.client.render.BrownSilkSolenRenderer;
+import com.wan.gmmod.client.render.AbyssDemonRenderer;
+import com.wan.gmmod.client.render.EvilBlackCatRenderer;
+import com.wan.gmmod.client.render.DeathRavenRenderer;
+import com.wan.gmmod.client.render.RainBirdRenderer;
+import com.wan.gmmod.client.render.NightmareShadowRenderer;
+import com.wan.gmmod.client.render.VengefulShadowRenderer;
+import com.wan.gmmod.client.render.LivingCorpseRenderer;
+import com.wan.gmmod.client.render.FireSalamanderRenderer;
+import com.wan.gmmod.client.render.GrayBirdGrandmaRenderer;
+import com.wan.gmmod.client.render.OneEyedBullRenderer;
+import com.wan.gmmod.client.render.RottenShepherdRenderer;
+import com.wan.gmmod.client.render.BlackSpottedFrogRenderer;
+import com.wan.gmmod.client.render.FrogMeatPuppetRenderer;
+import com.wan.gmmod.client.render.BlackScaleSharkRenderer;
 import com.wan.gmmod.client.PendulumClientState;
 import com.wan.gmmod.client.BlockHighlightClientState;
 import com.wan.gmmod.client.MeditationClientState;
@@ -102,6 +125,40 @@ public class GMmodClient {
             EntityRenderers.register(ModEntities.FIRE_RAVEN.get(), ThrownItemRenderer::new);
             EntityRenderers.register(ModEntities.FLAME_SPEAR.get(), ThrownItemRenderer::new);
             EntityRenderers.register(ModEntities.FLAME_TRAP.get(), ThrownItemRenderer::new);
+            // 灵性符咒投射物：以符咒物品外观渲染
+            EntityRenderers.register(ModEntities.TALISMAN.get(), ThrownItemRenderer::new);
+
+            // 新增生物实体渲染器
+            EntityRenderers.register(ModEntities.HUMAN_SKIN_SHADOW.get(), HumanSkinShadowRenderer::new);
+            EntityRenderers.register(ModEntities.EVIL_PANTHER.get(), EvilPantherRenderer::new);
+            EntityRenderers.register(ModEntities.THOUSAND_FACED_HUNTER.get(), ThousandFacedHunterRenderer::new);
+            EntityRenderers.register(ModEntities.WHITE_FOX.get(), WhiteFoxRenderer::new);
+            EntityRenderers.register(ModEntities.WIDOW_SPIDER.get(), WidowSpiderRenderer::new);
+            EntityRenderers.register(ModEntities.HORNACHIS_GOAT.get(), HornachisGoatRenderer::new);
+            EntityRenderers.register(ModEntities.LAVA_DEMON.get(), LavaDemonRenderer::new);
+            EntityRenderers.register(ModEntities.MR_K.get(), MrKRenderer::new);
+            EntityRenderers.register(ModEntities.BROWN_SILK_SOLEN.get(), BrownSilkSolenRenderer::new);
+            EntityRenderers.register(ModEntities.ABYSS_DEMON.get(), AbyssDemonRenderer::new);
+            EntityRenderers.register(ModEntities.EVIL_BLACK_CAT.get(), EvilBlackCatRenderer::new);
+            EntityRenderers.register(ModEntities.DEATH_RAVEN.get(), DeathRavenRenderer::new);
+            EntityRenderers.register(ModEntities.RAIN_BIRD.get(), RainBirdRenderer::new);
+            EntityRenderers.register(ModEntities.NIGHTMARE_SHADOW.get(), NightmareShadowRenderer::new);
+            EntityRenderers.register(ModEntities.VENGEFUL_SHADOW.get(), VengefulShadowRenderer::new);
+            EntityRenderers.register(ModEntities.LIVING_CORPSE.get(), LivingCorpseRenderer::new);
+            EntityRenderers.register(ModEntities.FIRE_SALAMANDER.get(), FireSalamanderRenderer::new);
+            EntityRenderers.register(ModEntities.GRAY_BIRD_GRANDMA.get(), GrayBirdGrandmaRenderer::new);
+            EntityRenderers.register(ModEntities.ONE_EYED_BULL.get(), OneEyedBullRenderer::new);
+            EntityRenderers.register(ModEntities.ROTTEN_SHEPHERD.get(), RottenShepherdRenderer::new);
+            EntityRenderers.register(ModEntities.BLACK_SPOTTED_FROG.get(), BlackSpottedFrogRenderer::new);
+            EntityRenderers.register(ModEntities.FROG_MEAT_PUPPET.get(), FrogMeatPuppetRenderer::new);
+            EntityRenderers.register(ModEntities.BLACK_SCALE_SHARK.get(), BlackScaleSharkRenderer::new);
+            // 配方材料来源生物（新增）
+            EntityRenderers.register(ModEntities.SILVER_WAR_BEAR.get(), com.wan.gmmod.client.render.SilverWarBearRenderer::new);
+            EntityRenderers.register(ModEntities.SKINLESS_BLOOD_CAT.get(), com.wan.gmmod.client.render.SkinlessBloodCatRenderer::new);
+            EntityRenderers.register(ModEntities.ADULT_UNICORN.get(), com.wan.gmmod.client.render.AdultUnicornRenderer::new);
+            EntityRenderers.register(ModEntities.ADULT_PEGASUS.get(), com.wan.gmmod.client.render.AdultPegasusRenderer::new);
+            EntityRenderers.register(ModEntities.DAWN_ROOSTER.get(), com.wan.gmmod.client.render.DawnRoosterRenderer::new);
+            EntityRenderers.register(ModEntities.NIGHTMARE_EYE.get(), com.wan.gmmod.client.render.NightmareEyeRenderer::new);
             // 火焰塑形：模型谓词读取当前形态（0=剑、1=鞭、2=马刀），驱动三套纹理切换
             ItemProperties.register(ModItems.FLAME_WEAPON.get(), GuimiMod.id("flame_form"),
                     (stack, level, entity, seed) -> FlameWeaponItem.getForm(stack));
@@ -206,17 +263,23 @@ public class GMmodClient {
             while (KeyBindings.MEDITATION_KEY.consumeClick()) {
                 PacketDistributor.sendToServer(new MeditationTogglePacket());
             }
-            // G 键：打开变形选择界面（无面人 · 序列 6）
+            // G 键：打开变形选择界面（无面人 · 序列 6，仅愚者途径解锁）
             while (KeyBindings.OPEN_DISGUISE_KEY.consumeClick()) {
-                Minecraft.getInstance().setScreen(new DisguiseScreen());
+                if (hasFoolSequence(6,
+                        "message.guimi_mod.fool_locked_disguise")) {
+                    Minecraft.getInstance().setScreen(new DisguiseScreen());
+                }
             }
             // H 键：隐藏 / 显示模组 HUD
             while (KeyBindings.TOGGLE_HUD_KEY.consumeClick()) {
                 HudClientState.toggle();
             }
-            // B 键：切换纸牌发射模式（精准单点 / 散射）
+            // B 键：切换纸牌发射模式（精准单点 / 散射，小丑 · 序列 8，仅愚者途径解锁）
             while (KeyBindings.CARD_MODE_KEY.consumeClick()) {
-                PacketDistributor.sendToServer(new ToggleCardModePacket());
+                if (hasFoolSequence(8,
+                        "message.guimi_mod.fool_locked_card")) {
+                    PacketDistributor.sendToServer(new ToggleCardModePacket());
+                }
             }
             // J 键：打开任务书
             while (KeyBindings.OPEN_QUEST_JOURNAL.consumeClick()) {
@@ -363,9 +426,24 @@ public class GMmodClient {
             }
         }
 
-        /** Shift+技能键 1~5：将页内选中槽的技能存入当前页对应槽位（快速配置）。 */
-        private static void quickAssign(int localSlot) {
+        /** 是否为愚者途径且序列等级已达到要求（序列号越小越强，level ≤ required 即已晋升）。 */
+        private static boolean hasFoolSequence(int requiredSequence, String lockMessageKey) {
             Minecraft mc = Minecraft.getInstance();
+            if (mc.player == null) {
+                return false;
+            }
+            String pathway = mc.player.getData(ModAttachments.PATHWAY);
+            int level = mc.player.getData(ModAttachments.SEQUENCE_LEVEL);
+            if ("fool".equals(pathway) && level <= requiredSequence && level > 0) {
+                return true;
+            }
+            mc.player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable(lockMessageKey), true);
+            return false;
+        }
+
+        /** Shift+技能键 1~5：将页内选中槽的技能存入当前页对应槽位（快速配置）。 */
+        private static void quickAssign(int localSlot) {            Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) {
                 return;
             }

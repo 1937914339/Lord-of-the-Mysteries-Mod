@@ -9,6 +9,8 @@ import com.wan.gmmod.common.network.packet.PendulumUsePacket;
 import com.wan.gmmod.common.network.packet.SelectDisguisePacket;
 import com.wan.gmmod.common.network.packet.SilenceGunFirePacket;
 import com.wan.gmmod.common.network.packet.SpiritWallTogglePacket;
+import com.wan.gmmod.common.network.packet.StealChoicePacket;
+import com.wan.gmmod.common.network.packet.StealMenuPacket;
 import com.wan.gmmod.common.network.packet.ToggleSpiritVisionPacket;
 import com.wan.gmmod.common.network.packet.ConfigureSkillPacket;
 import com.wan.gmmod.common.network.packet.TriggerSkillPacket;
@@ -170,6 +172,18 @@ public class ModNetwork {
                 DistortionZoneSyncPacket.TYPE,
                 DistortionZoneSyncPacket.STREAM_CODEC,
                 DistortionZoneSyncPacket::handle
+        );
+        // 盗火人隔空盗窃菜单包：服务端 → 客户端，打开偷取选择界面
+        registrar.playToClient(
+                StealMenuPacket.TYPE,
+                StealMenuPacket.STREAM_CODEC,
+                StealMenuPacket::handle
+        );
+        // 盗火人隔空盗窃选择包：客户端 → 服务端，回传所选物品下标
+        registrar.playToServer(
+                StealChoicePacket.TYPE,
+                StealChoicePacket.STREAM_CODEC,
+                StealChoicePacket::handle
         );
     }
 }

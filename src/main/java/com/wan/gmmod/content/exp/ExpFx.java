@@ -8,11 +8,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -157,5 +160,55 @@ public final class ExpFx {
     public static void whisper(ServerPlayer sp) {
         int idx = 1 + sp.getRandom().nextInt(5);
         sp.sendSystemMessage(Component.translatable("message.guimi_mod.exp.whisper." + idx));
+    }
+
+    /** 收集目标身上全部非空物品槽（玩家背包 / 生物装备），顺序与偷取一致。 */
+    public static List<ItemStack> itemSlots(LivingEntity target) {
+        List<ItemStack> slots = new ArrayList<>();
+        if (target instanceof Player player) {
+            for (ItemStack stack : player.getInventory().items) {
+                if (!stack.isEmpty()) slots.add(stack);
+            }
+            for (ItemStack stack : player.getInventory().armor) {
+                if (!stack.isEmpty()) slots.add(stack);
+            }
+            if (!player.getInventory().offhand.get(0).isEmpty()) {
+                slots.add(player.getInventory().offhand.get(0));
+            }
+        } else if (target instanceof Mob mob) {
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack stack = mob.getItemBySlot(slot);
+                if (!stack.isEmpty()) slots.add(stack);
+            }
+        }
+        return slots;
+    }
+
+    /** 偷取目标身上第 index 件物品（清空原槽），越界或无可偷返回空栈。 */
+    public static ItemStack stealFromIndex(LivingEntity target, int index) {
+        List<ItemStack> slots = itemSlots(target);
+        if (index < 0 || index >= slots.size()) return ItemStack.EMPTY;
+        ItemStack chosen = slots.get(index);
+        ItemStack copy = chosen.copy();
+        chosen.shrink(copy.getCount());
+        return copy;
+    }
+
+    /** 从玩家背包中找一件危险物品（TNT / 岩浆桶 / 打火石 / TNT 矿车），找到则消耗 1 件。 */
+    public static ItemStack findDangerous(ServerPlayer sp) {
+        ItemStack[] pool = {
+                new ItemStack(Items.TNT), new ItemStack(Items.LAVA_BUCKET),
+                new ItemStack(Items.FLINT_AND_STEEL), new ItemStack(Items.TNT_MINECART)};
+        for (ItemStack want : pool) {
+            for (int i = 0; i < sp.getInventory().getContainerSize(); i++) {
+                ItemStack stack = sp.getInventory().getItem(i);
+                if (!stack.isEmpty() && stack.is(want.getItem())) {
+                    ItemStack out = stack.copy();
+                    stack.shrink(1);
+                    return out;
+                }
+            }
+        }
+        return ItemStack.EMPTY;
     }
 }

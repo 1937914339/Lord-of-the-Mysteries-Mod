@@ -2,9 +2,11 @@ package com.wan.gmmod.common.registry;
 
 import com.mojang.serialization.Codec;
 import com.wan.gmmod.GuimiMod;
+import com.wan.gmmod.content.ancient.AncientArtifactData;
 import com.wan.gmmod.content.characteristics.CharacteristicData;
 import com.wan.gmmod.content.characteristics.MagicArtifactData;
 import com.wan.gmmod.content.characteristics.SealedArtifactData;
+import com.wan.gmmod.content.talisman.TalismanData;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -59,4 +61,28 @@ public class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("wand_bond", builder -> builder
                     .persistent(Codec.STRING)
                     .networkSynchronized(ByteBufCodecs.STRING_UTF8));
+
+    /** 符咒数据（祈求对象 + 类型）：挂在三种灵性符咒上，合成时由祭台写入。 */
+    public static final Supplier<DataComponentType<TalismanData>> TALISMAN =
+            DATA_COMPONENTS.registerComponentType("talisman", builder -> builder
+                    .persistent(TalismanData.CODEC)
+                    .networkSynchronized(TalismanData.STREAM_CODEC));
+
+    /** 符咒「灌注」到期游戏刻：灌注后 3 秒内可投掷，过期自动消散（发光标记随之移除）。 */
+    public static final Supplier<DataComponentType<Long>> TALISMAN_CHARGE_END =
+            DATA_COMPONENTS.registerComponentType("talisman_charge_end", builder -> builder
+                    .persistent(Codec.LONG)
+                    .networkSynchronized(ByteBufCodecs.VAR_LONG));
+
+    /** 货币价值（以便士为最小单位）：1 便士 = 1，1 苏勒 = 12，1 金镑 = 240。 */
+    public static final Supplier<DataComponentType<Integer>> CURRENCY_VALUE =
+            DATA_COMPONENTS.registerComponentType("currency_value", builder -> builder
+                    .persistent(Codec.INT)
+                    .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    /** 古代神秘物品变体（「有少许神秘力量的古代物品」系列实例标识）。 */
+    public static final Supplier<DataComponentType<AncientArtifactData>> ANCIENT_ARTIFACT =
+            DATA_COMPONENTS.registerComponentType("ancient_artifact", builder -> builder
+                    .persistent(AncientArtifactData.CODEC)
+                    .networkSynchronized(AncientArtifactData.STREAM_CODEC));
 }

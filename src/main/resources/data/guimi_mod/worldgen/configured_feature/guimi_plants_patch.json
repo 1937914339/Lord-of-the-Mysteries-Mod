@@ -1,7 +1,7 @@
 {
   "type": "minecraft:random_patch",
   "config": {
-    "tries": 32,
+    "tries": 48,
     "xz_spread": 8,
     "y_spread": 4,
     "feature": {
@@ -14,7 +14,33 @@
               { "weight": 3, "data": { "Name": "guimi_mod:gold_mint" } },
               { "weight": 3, "data": { "Name": "guimi_mod:night_fragrance" } },
               { "weight": 2, "data": { "Name": "guimi_mod:dragon_blood_grass" } },
-              { "weight": 2, "data": { "Name": "guimi_mod:poison_hemlock" } }
+              { "weight": 2, "data": { "Name": "guimi_mod:poison_hemlock" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_130_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_261_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:jin_bian_tai_yang_hua_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_127_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_128_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_148_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_226_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_227_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_171_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_184_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:zhong_xia_cao_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_156_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_084_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_113_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:psychedelic_grass_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_271_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_129_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_092_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_144_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_269_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_263_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:mu_yuan_xue_mei_gui_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_256_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:ren_dong_hua_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:ren_mian_long_cao_plant" } },
+              { "weight": 1, "data": { "Name": "guimi_mod:material_247_plant" } }
             ]
           }
         }

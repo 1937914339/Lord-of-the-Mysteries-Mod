@@ -37,17 +37,19 @@ public class TransformRenderHandler {
         PlayerModel<?> model = playerRenderer.getModel();
         boolean demon = player.hasEffect(ModEffects.DEMON_FORM);
         boolean werewolf = player.hasEffect(ModEffects.WEREWOLF_FORM);
-        model.head.visible = !demon;
-        model.hat.visible = !demon;
-        model.body.visible = !demon && !werewolf;
-        model.jacket.visible = !demon && !werewolf;
-        model.rightArm.visible = !demon && !werewolf;
-        model.rightSleeve.visible = !demon && !werewolf;
-        model.leftArm.visible = !demon && !werewolf;
-        model.leftSleeve.visible = !demon && !werewolf;
-        model.rightLeg.visible = !demon;
-        model.rightPants.visible = !demon;
-        model.leftLeg.visible = !demon;
-        model.leftPants.visible = !demon;
+        boolean bat = player.hasEffect(ModEffects.BAT_FORM);
+        boolean hideAll = demon || bat;
+        model.head.visible = !hideAll;
+        model.hat.visible = !hideAll;
+        model.body.visible = !hideAll && !werewolf;
+        model.jacket.visible = !hideAll && !werewolf;
+        model.rightArm.visible = !hideAll && !werewolf;
+        model.rightSleeve.visible = !hideAll && !werewolf;
+        model.leftArm.visible = !hideAll && !werewolf;
+        model.leftSleeve.visible = !hideAll && !werewolf;
+        model.rightLeg.visible = !hideAll;
+        model.rightPants.visible = !hideAll;
+        model.leftLeg.visible = !hideAll;
+        model.leftPants.visible = !hideAll;
     }
 }

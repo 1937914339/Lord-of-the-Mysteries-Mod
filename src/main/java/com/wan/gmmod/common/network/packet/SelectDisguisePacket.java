@@ -7,6 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
@@ -34,9 +35,18 @@ public record SelectDisguisePacket(String mobId) implements CustomPacketPayload 
 
     public static void handle(SelectDisguisePacket msg, IPayloadContext ctx) {
         ctx.enqueueWork(() -> {
+            Player player = ctx.player();
+            // 服务端校验：仅愚者途径且序列 ≤ 6（无面人）可使用变形库
+            if (!"fool".equals(player.getData(com.wan.gmmod.common.capability.ModAttachments.PATHWAY))
+                    || player.getData(com.wan.gmmod.common.capability.ModAttachments.SEQUENCE_LEVEL) > 6
+                    || player.getData(com.wan.gmmod.common.capability.ModAttachments.SEQUENCE_LEVEL) <= 0) {
+                player.displayClientMessage(net.minecraft.network.chat.Component.translatable(
+                        "message.guimi_mod.fool_locked_disguise"), true);
+                return;
+            }
             ResourceLocation id = (msg.mobId() == null || msg.mobId().isEmpty())
                     ? null : ResourceLocation.tryParse(msg.mobId());
-            DisguiseManager.setDisguise(ctx.player(), id);
+            DisguiseManager.setDisguise(player, id);
         });
     }
 }

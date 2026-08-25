@@ -66,11 +66,18 @@ public class AltarBlockEntity extends BlockEntity {
      * 仅判断当前材料是否能匹配某个配方（不消耗材料）。
      */
     public boolean hasMatchingRecipe() {
+        return matchingRecipe() != null;
+    }
+
+    /**
+     * 返回当前材料匹配到的配方；无匹配返回 {@code null}。
+     */
+    public AltarRecipe matchingRecipe() {
         Map<Item, Integer> available = new HashMap<>();
         for (ItemStack stack : items) {
             available.merge(stack.getItem(), stack.getCount(), Integer::sum);
         }
-        return AltarRecipeManager.findMatch(available) != null;
+        return AltarRecipeManager.findMatch(available);
     }
 
     /**

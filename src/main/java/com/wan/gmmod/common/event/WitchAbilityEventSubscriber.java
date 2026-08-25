@@ -11,6 +11,7 @@ import com.wan.gmmod.content.abilities.SkillManager;
 import com.wan.gmmod.content.abilities.WandSubstituteAbility;
 import com.wan.gmmod.content.abilities.WeakpointStrikeAbility;
 import com.wan.gmmod.content.charm.CharmManager;
+import com.wan.gmmod.common.registry.ModItems;
 import com.wan.gmmod.content.effects.FallCorruptionEffect;
 import com.wan.gmmod.content.witch.WitchPathwayManager;
 import net.minecraft.core.particles.ParticleTypes;
@@ -195,7 +196,7 @@ public class WitchAbilityEventSubscriber {
         // 隐藏交易：低概率向该村民追加一条稀有交易
         if (sp.getRandom().nextFloat() < PersuadeAbility.HIDDEN_TRADE_CHANCE && villager.getOffers().size() < 12) {
             villager.getOffers().add(new MerchantOffer(
-                    new ItemCost(Items.EMERALD, 6),
+                    new ItemCost(ModItems.SOYLE.get(), 6),
                     new net.minecraft.world.item.ItemStack(Items.EXPERIENCE_BOTTLE, 3),
                     2, 8, 0.1F));
         }

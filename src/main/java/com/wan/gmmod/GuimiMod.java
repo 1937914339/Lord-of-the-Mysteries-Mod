@@ -40,9 +40,10 @@ public class GuimiMod {
         return ResourceLocation.fromNamespaceAndPath(MODID, path);
     }
     public GuimiMod(IEventBus modEventBus, ModContainer modContainer) {
+        // 注册数据组件（先于物品，保证物品 Properties.component 可解析）
+        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         // 注册物品
         ModItems.ITEMS.register(modEventBus);
-        ModDataComponents.DATA_COMPONENTS.register(modEventBus);
         ModArmorMaterials.ARMOR_MATERIALS.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModCreativeTabs.TABS.register(modEventBus);
@@ -55,6 +56,7 @@ public class GuimiMod {
         ModBlockEntities.register(modEventBus);
         ModEntities.ENTITIES.register(modEventBus);
         ModSounds.register(modEventBus);
+        com.wan.gmmod.common.registry.ModFeatures.FEATURES.register(modEventBus);
         com.wan.gmmod.common.registry.ModEffects.register(modEventBus);
         ModLootModifiers.register(modEventBus);
 

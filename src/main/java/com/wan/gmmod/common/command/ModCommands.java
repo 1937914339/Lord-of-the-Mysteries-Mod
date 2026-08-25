@@ -1,6 +1,8 @@
 package com.wan.gmmod.common.command;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.wan.gmmod.GuimiMod;
 import com.wan.gmmod.common.capability.ModAttachments;
@@ -13,9 +15,13 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -73,6 +79,38 @@ public final class ModCommands {
                         .then(Commands.argument("targets", EntityArgument.players())
                                 .executes(ctx -> resetQuest(ctx.getSource(),
                                         EntityArgument.getPlayers(ctx, "targets"))))))
+                .then(Commands.literal("city")
+                        .then(Commands.literal("layout")
+                                .executes(ctx -> cityLayout(ctx.getSource())))
+                        .then(Commands.literal("markers")
+                                .executes(ctx -> cityMarkers(ctx.getSource())))
+                        .then(Commands.literal("unmark")
+                                .executes(ctx -> cityUnmark(ctx.getSource())))
+                        .then(Commands.literal("reset")
+                                .executes(ctx -> cityReset(ctx.getSource())))
+                        .then(Commands.literal("merge")
+                                .executes(ctx -> cityMerge(ctx.getSource())))
+                        .then(Commands.literal("reload")
+                                .executes(ctx -> cityReload(ctx.getSource())))
+                        .then(Commands.literal("sethere")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .executes(ctx -> citySetHere(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "name"), null))
+                                        .then(Commands.argument("rotation", StringArgumentType.word())
+                                                .executes(ctx -> citySetHere(ctx.getSource(),
+                                                        StringArgumentType.getString(ctx, "name"),
+                                                        StringArgumentType.getString(ctx, "rotation"))))))
+                        .then(Commands.literal("setpos")
+                                .then(Commands.argument("name", StringArgumentType.word())
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> citySetPos(ctx.getSource(),
+                                                        StringArgumentType.getString(ctx, "name"),
+                                                        BlockPosArgument.getLoadedBlockPos(ctx, "pos"), null))
+                                                .then(Commands.argument("rotation", StringArgumentType.word())
+                                                        .executes(ctx -> citySetPos(ctx.getSource(),
+                                                                StringArgumentType.getString(ctx, "name"),
+                                                                BlockPosArgument.getLoadedBlockPos(ctx, "pos"),
+                                                                StringArgumentType.getString(ctx, "rotation"))))))))
                 .then(Commands.literal("demote")
                         .executes(ctx -> demote(ctx.getSource(),
                                 List.of(ctx.getSource().getPlayerOrException())))
@@ -170,5 +208,95 @@ public final class ModCommands {
         source.sendSuccess(() -> Component.translatable(
                 "command.guimi_mod.max.success", targets.size()), true);
         return targets.size();
+    }
+
+    /** 打印每个结构规划的中心 / 锚点 / 尺寸，便于核对与调布局。 */
+    private static int cityLayout(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        List<com.wan.gmmod.content.city.LoenCityGenerator.Planned> plan =
+                com.wan.gmmod.content.city.LoenCityGenerator.plan(level);
+        for (var p : plan) {
+            source.sendSuccess(() -> Component.literal(
+                    String.format("%s 中心=(%d,%d,%d) 尺寸=[%d,%d,%d] 锚点=(%d,%d,%d)",
+                            p.name(), p.center().getX(), p.center().getY(), p.center().getZ(),
+                            p.size()[0], p.size()[1], p.size()[2],
+                            p.anchor().getX(), p.anchor().getY(), p.anchor().getZ())), false);
+        }
+        return plan.size();
+    }
+
+    /** 放置标记方块：金块=结构中心，青金石=锚点。返回实际数量。 */
+    private static int cityMarkers(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        int count = com.wan.gmmod.content.city.LoenCityGenerator.placeMarkers(level);
+        source.sendSuccess(() -> Component.literal("已放置 " + count + " 个标记方块（金块=中心，青金石=锚点）"), false);
+        return count;
+    }
+
+    /** 清除上次放置的标记方块。 */
+    private static int cityUnmark(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        com.wan.gmmod.content.city.LoenCityGenerator.clearMarkers(level);
+        source.sendSuccess(() -> Component.literal("已清除标记方块"), false);
+        return 1;
+    }
+
+    /** 标记城市为未生成：下次服务器启动会按当前布局重新生成。 */
+    private static int cityReset(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        com.wan.gmmod.content.city.LoenCityGenerator.resetGenerated(level);
+        source.sendSuccess(() -> Component.literal("已标记：下次启动服务器时会重新生成城市（旧建筑不会自动清除）"), true);
+        return 1;
+    }
+
+    /** 把当前布局的多个结构合并为单个 church_all.nbt，写入世界文件夹，不受结构方块 32 格上限影响。 */
+    private static int cityMerge(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        int blocks = com.wan.gmmod.content.city.LoenCityGenerator.mergeToSingle(level);
+        if (blocks < 0) {
+            source.sendFailure(Component.literal("合并失败，详见服务端日志"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal(
+                "已合并为 church_all.nbt（" + blocks + " 个方块），存放在世界文件夹 guimi_structures/。"
+                        + "执行 /guimi city reset 并重启服务器即可按合并结果生成"), true);
+        return 1;
+    }
+
+    /** 免重启调位置：重载布局并立即重放标记。 */
+    private static int cityReload(CommandSourceStack source) {
+        ServerLevel level = source.getLevel();
+        int count = com.wan.gmmod.content.city.LoenCityGenerator.reloadAndMark(level);
+        source.sendSuccess(() -> Component.literal("已重载布局并更新标记（" + count + " 个标记方块）"), false);
+        return 1;
+    }
+
+    /** 站在目标位置调整结构：中心 x/z 取脚下，y 保持当前值。 */
+    private static int citySetHere(CommandSourceStack source, String name, String rotation) throws CommandSyntaxException {
+        ServerLevel level = source.getLevel();
+        Player player = source.getPlayerOrException();
+        int r = com.wan.gmmod.content.city.LoenCityGenerator.setHere(level, name, player.blockPosition(), rotation);
+        if (r < 0) {
+            source.sendFailure(Component.literal("结构 " + name + " 不存在，可用 /guimi city layout 查看"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal(
+                "已把 " + name + " 的中心 x/z 设到你脚下（y 保持原值）" + (rotation != null ? "，rotation=" + rotation : "")
+                        + "，标记已更新"), true);
+        return 1;
+    }
+
+    /** 用世界坐标指定结构的中心位置。 */
+    private static int citySetPos(CommandSourceStack source, String name, BlockPos pos, String rotation) {
+        ServerLevel level = source.getLevel();
+        int r = com.wan.gmmod.content.city.LoenCityGenerator.setPos(level, name, pos, rotation);
+        if (r < 0) {
+            source.sendFailure(Component.literal("结构 " + name + " 不存在，可用 /guimi city layout 查看"));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal(
+                "已把 " + name + " 的中心设到 " + pos.toShortString() + (rotation != null ? "，rotation=" + rotation : "")
+                        + "，标记已更新"), true);
+        return 1;
     }
 }

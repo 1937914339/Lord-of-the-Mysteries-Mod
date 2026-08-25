@@ -120,6 +120,16 @@ public class BrewingEventSubscriber {
                 return;
             }
 
+            // 配方卷轴校验：必须先研读过该魔药的配方才可炼制
+            if (!player.getData(ModAttachments.READ_RECIPES).contains(recipe.id())) {
+                data.markPurified(pos);
+                level.setData(ModAttachments.CAULDRON_BREWING.get(), data);
+                player.displayClientMessage(Component.translatable(
+                        "message.guimi_mod.cauldron_not_learned",
+                        Component.translatable("item.guimi_mod." + recipe.id())), true);
+                return;
+            }
+
             consumeIngredients(items, recipe);
             ItemStack result = recipe.createResult();
             ItemEntity out = new ItemEntity(level,

@@ -2,6 +2,7 @@ package com.wan.gmmod.common.registry;
 
 import com.wan.gmmod.GuimiMod;
 import com.wan.gmmod.content.effects.AntiDivinationEffect;
+import com.wan.gmmod.content.effects.BatFormEffect;
 import com.wan.gmmod.content.effects.BlackFlameEffect;
 import com.wan.gmmod.content.effects.BleedingEffect;
 import com.wan.gmmod.content.effects.DawnMarkEffect;
@@ -78,6 +79,10 @@ public class ModEffects {
     /** 恶魔化生效标记：驱动客户端渲染「恶魔化」全身模型（深渊 · 序列6 恶魔） */
     public static final DeferredHolder<MobEffect, MobEffect> DEMON_FORM =
             EFFECTS.register("demon_form", DemonFormEffect::new);
+
+    /** 蝙蝠化形生效标记：驱动客户端隐藏玩家本体模型（化身蝙蝠群，月亮 · 序列7 吸血鬼） */
+    public static final DeferredHolder<MobEffect, MobEffect> BAT_FORM =
+            EFFECTS.register("bat_form", BatFormEffect::new);
 
     public static void register(IEventBus bus) {
         EFFECTS.register(bus);
