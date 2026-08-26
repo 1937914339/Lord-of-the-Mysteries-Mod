@@ -11,7 +11,7 @@
 
 ## ✨ About the Mod
 
-You are a fresh "Sequence 9" newcomer who has just stepped into the Beyonder world. Gather materials, study recipes, brew your own potions before the cauldron, and climb the ladder of 22 pathways — but remember: **the higher the sequence, the greater the risk of losing control**.
+You are a fresh "Sequence 9" newcomer who has just stepped into the Beyonder world. Gather materials, study recipes, brew your own potions before the cauldron, and climb the ladder of 22 pathways — but remember: **"At the same time as diving into the role and giving it your all, step back emotionally, look at things calmly, and through small comparisons, understand yourself and find your truest self."**.
 
 > Feel free to try out the mod's content — many features are still missing their designs and acquisition methods, so it is **not recommended for survival play** yet.
 
