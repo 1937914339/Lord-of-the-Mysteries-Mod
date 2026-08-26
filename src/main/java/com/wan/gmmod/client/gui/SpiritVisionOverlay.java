@@ -35,7 +35,9 @@ public class SpiritVisionOverlay {
 
     @SubscribeEvent
     public static void registerLayer(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(GuimiMod.id("spirit_vision_filter"), SpiritVisionOverlay::render);
+        // 灵视滤镜（蓝黑遮罩/暗角）已按需求停用：开启灵视不再叠加全屏色块，
+        // 灵体之线轮廓与灵体光晕由实体渲染层负责。保留本类以备后续恢复。
+        // event.registerAboveAll(GuimiMod.id("spirit_vision_filter"), SpiritVisionOverlay::render);
     }
 
     private static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {

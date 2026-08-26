@@ -1,7 +1,9 @@
 package com.wan.gmmod;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.wan.gmmod.client.render.SpiritGlowLayer;
 import com.wan.gmmod.client.render.SpiritRenderer;
+import com.wan.gmmod.client.render.SpiritThreadOutlineLayer;
 import com.wan.gmmod.client.render.ShadowCreatureRenderer;
 import com.wan.gmmod.client.render.TransformVisualLayer;
 import com.wan.gmmod.client.render.WraithRenderer;
@@ -163,12 +165,22 @@ public class GMmodClient {
         });
     }
 
-    /** 实体渲染层注册：灵视相关图层暂不启用（灵体之线轮廓 / 灵体光晕已移除）。 */
+    /** 灵体之线视野：给所有活体渲染器（含玩家皮肤）追加灵体之线轮廓层与灵体光晕层。 */
     @SubscribeEvent
     @SuppressWarnings({"unchecked", "rawtypes"})
     static void onAddLayers(EntityRenderersEvent.AddLayers event) {
+        for (EntityType<?> type : event.getEntityTypes()) {
+            if (event.getRenderer((EntityType) type) instanceof LivingEntityRenderer living) {
+                // 灵体（怨灵 / 灵体实体）：附加灵视光晕层，开启灵视时灵体发光
+                if (type == ModEntities.SPIRIT.get() || type == ModEntities.WRAITH.get()) {
+                    living.addLayer(new SpiritGlowLayer<>(living));
+                }
+                living.addLayer(new SpiritThreadOutlineLayer<>(living));
+            }
+        }
         for (PlayerSkin.Model skin : event.getSkins()) {
             if (event.getSkin(skin) instanceof LivingEntityRenderer living) {
+                living.addLayer(new SpiritThreadOutlineLayer<>(living));
                 // 黎明加持视觉层：黎明命甲 / 晨曦之剑 模型显示
                 living.addLayer(new DawnBuffVisualLayer<>(living));
                 // 变身视觉层：狼人化 / 恶魔化 模型显示
