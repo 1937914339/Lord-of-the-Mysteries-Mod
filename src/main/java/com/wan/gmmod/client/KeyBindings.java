@@ -51,12 +51,12 @@ public class KeyBindings {
             "key.categories.guimi_mod"
     );
 
-    // G 键：打开变形选择界面（无面人 · 序列 6）
+    // 变形选择界面（无面人 · 序列 6）：默认不绑定，由玩家在控制设置中自行分配
     public static final KeyMapping OPEN_DISGUISE_KEY = new KeyMapping(
             "key.guimi_mod.disguise",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_G,
+            GLFW.GLFW_KEY_UNKNOWN,
             "key.categories.guimi_mod"
     );
 
@@ -69,12 +69,12 @@ public class KeyBindings {
             "key.categories.guimi_mod"
     );
 
-    // B 键：切换纸牌发射模式（精准单点 / 散射）
+    // 纸牌发射模式切换（精准单点 / 散射）：默认不绑定，由玩家在控制设置中自行分配
     public static final KeyMapping CARD_MODE_KEY = new KeyMapping(
             "key.guimi_mod.card_mode",
             KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_B,
+            GLFW.GLFW_KEY_UNKNOWN,
             "key.categories.guimi_mod"
     );
 
