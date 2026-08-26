@@ -327,7 +327,7 @@ public class ModEntities {
     // 银白战熊：审判者途径材料的来源猛兽
     public static final Supplier<EntityType<com.wan.gmmod.content.entities.SilverWarBearEntity>> SILVER_WAR_BEAR =
             ENTITIES.register("silver_war_bear",
-                    () -> EntityType.Builder.<com.wan.gmmod.content.entities.SilverWarBearEntity>of(com.wan.gmmod.content.entities.SilverWarBearEntity::new, MobCategory.MONSTER).sized(1.5f, 2.0f).build("silver_war_bear"));
+                    () -> EntityType.Builder.<com.wan.gmmod.content.entities.SilverWarBearEntity>of(com.wan.gmmod.content.entities.SilverWarBearEntity::new, MobCategory.MONSTER).sized(1.9f, 2.6f).build("silver_war_bear"));
     // 无皮血猫：隐者途径材料的来源异变生物
     public static final Supplier<EntityType<com.wan.gmmod.content.entities.SkinlessBloodCatEntity>> SKINLESS_BLOOD_CAT =
             ENTITIES.register("skinless_blood_cat",

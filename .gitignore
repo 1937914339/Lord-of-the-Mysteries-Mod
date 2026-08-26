@@ -28,3 +28,8 @@ Thumbs.db
 # ===== 鏈湴绉佹湁閰嶇疆 =====
 *.local
 config/secrets/
+# ===== 本地工具 / 遗留文件 =====
+.feisuan/
+/net/
+.frontend-port
+*.mp3

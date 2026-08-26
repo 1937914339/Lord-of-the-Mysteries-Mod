@@ -51,7 +51,18 @@ public class NightmareEyeEntity extends Monster implements GeoEntity {
     public NightmareEyeEntity(EntityType<? extends Monster> type, Level level) {
         super(type, level);
         this.moveControl = new FlyingMoveControl(this, 20, true);
+        // 常驻空中：不受重力，始终悬浮飞行
+        this.setNoGravity(true);
         this.xpReward = 12;
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation nav = new FlyingPathNavigation(this, level);
+        nav.setCanOpenDoors(false);
+        nav.setCanFloat(true);
+        nav.setCanPassDoors(true);
+        return nav;
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -80,17 +91,9 @@ public class NightmareEyeEntity extends Monster implements GeoEntity {
     }
 
     @Override
-    protected PathNavigation createNavigation(Level level) {
-        FlyingPathNavigation nav = new FlyingPathNavigation(this, level);
-        nav.setCanOpenDoors(false);
-        nav.setCanFloat(true);
-        nav.setCanPassDoors(true);
-        return nav;
-    }
-
-    @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.3, true));
+        this.goalSelector.addGoal(4, new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal(this, 0.3));
         this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 12.0F));
 
         this.targetSelector.addGoal(0, new HurtByTargetGoal(this));
@@ -106,9 +109,9 @@ public class NightmareEyeEntity extends Monster implements GeoEntity {
             if (isAttackForm() != shouldAttack) {
                 setAttackForm(shouldAttack);
             }
-            // 悬浮：缓慢向目标高度漂浮，避免落地
-            if (!this.onGround() || this.getDeltaMovement().horizontalDistanceSqr() > 0.001) {
-                // 保持飞行状态由 FlyingMoveControl 处理
+            // 悬停保障：意外贴地时缓慢抬升回空中
+            if (this.onGround()) {
+                this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.06, 0.0));
             }
         }
     }

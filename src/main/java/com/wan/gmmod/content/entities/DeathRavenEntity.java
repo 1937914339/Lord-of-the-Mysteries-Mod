@@ -23,6 +23,7 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomFlyingGoal;
 public class DeathRavenEntity extends Monster implements GeoEntity {
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.idle");
     private static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.walk");
+    private static final RawAnimation FLY = RawAnimation.begin().thenLoop("animation.fly");
         private static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("animation.attack");
     private static final String TRIGGER_ATTACK = "attack";
 
@@ -36,10 +37,20 @@ public class DeathRavenEntity extends Monster implements GeoEntity {
 this.setNoGravity(true);
     }
 
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation nav = new FlyingPathNavigation(this, level);
+        nav.setCanOpenDoors(false);
+        nav.setCanFloat(true);
+        nav.setCanPassDoors(true);
+        return nav;
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
+                .add(Attributes.FLYING_SPEED, 0.4)
                 .add(Attributes.FOLLOW_RANGE, 20.0)
                 .add(Attributes.ATTACK_DAMAGE, 4.0);
     }
@@ -68,6 +79,10 @@ this.setNoGravity(true);
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER, 5, state -> {
+            // 空中展翅飞行；地面移动小跑；静止待机
+            if (!this.onGround() && !this.isPassenger()) {
+                return state.setAndContinue(FLY);
+            }
             if (state.isMoving()) {
                 return state.setAndContinue(WALK);
             }
