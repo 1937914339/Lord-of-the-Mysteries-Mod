@@ -1,5 +1,7 @@
 ﻿# 诡秘之主 Guimimod
 
+> 🌐 语言 / Language: 简体中文 | [English](README_EN.md)
+
 > 一款以《诡秘之主》小说为蓝本的 Minecraft NeoForge 大型 RPG 模组。
 > 序列魔药 · 途径扮演 · 灵性占卜 · 秘偶操控 · 古代神秘物品 —— 现在就在方块世界中踏上非凡之路。
 
